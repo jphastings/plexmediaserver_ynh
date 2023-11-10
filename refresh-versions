@@ -1,0 +1,34 @@
+#!/bin/bash
+# This script is used to update the versions of Plex in this repo using an HTML fragment from the Plex downloads page.
+# It is intended to be run manually, and the output should be reviewed before committing.
+#
+# Select the Plex Pass downloads for Linux, click "Choose distribution", right click the tooltip box, and copy its HTML
+# into 'linux.html' in this directory. Then run this script.
+
+LINKS=$(cat linux.html | pup 'a attr{href}')
+for LINK in $LINKS; do
+  if [[ $LINK != *deb ]]; then
+    continue
+  fi
+
+  ARCH=$(echo $LINK | rev | cut -f2 -d'.' | rev | cut -f2 -d'_')
+  FILE="./conf/app-${ARCH}.src"
+  if [[ -f "$FILE" ]]; then
+    echo "Downloading & hashing ${ARCH}..."
+  else
+    echo "Skipping ${ARCH}"
+    continue
+  fi
+
+  SUM=$(curl -s "$LINK" | sha256sum | cut -f1 -d" ")
+
+cat << EOF > "$FILE"
+SOURCE_URL=$LINK
+SOURCE_SUM=$SUM
+SOURCE_SUM_PRG=sha512sum
+SOURCE_FORMAT=deb
+SOURCE_IN_SUBDIR=false
+SOURCE_EXTRACT=false
+SOURCE_FILENAME=plexmediaserver.deb
+EOF
+done
