@@ -6,6 +6,10 @@
 # into 'linux.html' in this directory. Then run this script.
 
 LINKS=$(cat linux.html | pup 'a attr{href}')
+VERSION=$(echo "$LINKS" | head -n1 | cut -f5 -d'/' | cut -f1 -d'-')
+sed -E 's/Shipped version: .+/Shipped version: '"$VERSION"'/' README.md > README.md.tmp
+mv README.md.tmp README.md
+
 for LINK in $LINKS; do
   if [[ $LINK != *deb ]]; then
     continue
