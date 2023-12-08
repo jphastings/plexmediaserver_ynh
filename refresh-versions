@@ -2,6 +2,8 @@
 # This script is used to update the versions of Plex in this repo using an HTML fragment from the Plex downloads page.
 # It is intended to be run manually, and the output should be reviewed before committing.
 #
+# https://www.plex.tv/en-gb/media-server-downloads/?langr=1&cat=computer&plat=linux
+#
 # Select the Plex Pass downloads for Linux, click "Choose distribution", right click the tooltip box, and copy its HTML
 # into 'linux.html' in this directory. Then run this script.
 
@@ -27,7 +29,7 @@ for LINK in $LINKS; do
     continue
   fi
 
-  SUM=$(curl -s "$LINK" | sha256sum | cut -f1 -d" ")
+  SUM=$(curl -s "$LINK" | sha512sum | cut -f1 -d" ")
 
 cat << EOF > "$FILE"
 SOURCE_URL=$LINK
